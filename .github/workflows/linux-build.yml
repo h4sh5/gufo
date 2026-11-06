@@ -1,6 +1,11 @@
 name: Linux build
 
 on:
+  workflow_dispatch:
+    inputs:
+      git-ref:
+        description: Git Ref (Optional)    
+        required: false
   workflow_call:
     inputs:
       revision:
