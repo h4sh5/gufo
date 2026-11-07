@@ -1,0 +1,30 @@
+# Build context for the gfx1151 container image.
+#
+# The release build (BUILD_TESTING=OFF, GUFO_BUILD_TOOLS=OFF) needs src/, cmake/,
+# tools/, CMakeLists.txt, CMakePresets.json and version.txt. The install rules
+# also copy licenses/, NOTICE, THIRD_PARTY_NOTICES.md and
+# tests/models/deepseek_v4_flash/fixtures/antirez-ds4.json, so those stay in.
+
+.git/
+.container-logs/
+.github/
+.agents/
+.claude/
+build/
+result/
+docs/
+assets/
+models/
+*.gguf
+*.npz
+*.onnx
+*.safetensors
+*.log
+__pycache__/
+*.pyc
+.vscode/
+*.tmp
+
+# Nix artifacts are irrelevant to the container build.
+flake.lock
+.devops/

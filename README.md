@@ -326,6 +326,38 @@ The same source, compiler flags and install rules serve both builds. Nix pins
 the complete toolchain for reproducible comparisons; changing the compiler or
 math libraries requires the affected model's quality checks.
 
+### Container image
+
+[Dockerfile](Dockerfile) compiles the same release configuration on AMD's
+ROCm 10.1 image and packages it for Podman, as an alternative to the published
+`gufo-runtime` image and to a host install:
+
+```sh
+podman build -t gufo:local \
+  --build-arg GUFO_REVISION="$(git rev-parse --short HEAD)" \
+  --build-arg GUFO_RELEASE_VERSION="$(cat version.txt)" .
+podman run --rm \
+  --device /dev/kfd --device /dev/dri --group-add keep-groups \
+  --ulimit memlock=-1 \
+  -p 8080:8080 -v ./models:/models:ro \
+  gufo:local serve llm --model /models/Qwen3.8-27B-UD-Q8_K_XL.gguf
+```
+
+The image carries the ROCm userspace and the engine; the `amdgpu` driver, its
+parameters and the memory settings stay on the host, so the
+[Quickstart](#quickstart) GPU checks and the rootless
+`--userns=keep-id:uid=1000,gid=1000` mapping apply unchanged. Check a host with
+`gufo:local diagnose`. Gufo serves as uid 1000 and keeps its disk prompt cache
+under `/var/lib/gufo`; mount a volume there to keep it across containers.
+`GUFO_HOST` and `GUFO_PORT` supply the bind address when `--host` and `--port`
+are absent, and `GET /health` is the container health check.
+
+AMD's image ships an unpatched ROCr. The Nix package applies the queue-memory
+patch above, which matters on hosts that compact host memory aggressively; with
+unlimited `memlock` the stock runtime is the ordinary configuration.
+[.dockerignore](.dockerignore) keeps documentation, weights and build output out
+of the build context.
+
 ## License
 
 Gufo's original code is [MIT licensed](LICENSE). Adapted code and dependencies
