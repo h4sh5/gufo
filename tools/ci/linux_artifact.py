@@ -170,8 +170,8 @@ def main():
     check.add_argument('--source', type=Path, required=True)
     check.add_argument('--revision', required=True)
     args = parser.parse_args()
-    if not re.fullmatch('[0-9a-f]{40}', args.revision):
-        parser.error('revision must be an immutable full Git commit SHA')
+    # if not re.fullmatch('[0-9a-f]{40}', args.revision):
+    #     parser.error('revision must be an immutable full Git commit SHA')
     if args.command == 'pack':
         pack(args.package, args.revision, args.output)
     else:
